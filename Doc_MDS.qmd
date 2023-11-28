@@ -1,0 +1,70 @@
+---
+title: "Ejercicio MDS"
+author: 
+  - name: Ángel Álamo
+  - name: Juanjo Doblas
+  - name: Óscar Vanrell 
+format: html
+editor: visual
+execute:
+  echo: false
+---
+
+```{r, warning = FALSE, message = FALSE}
+library(MVA)
+library(tidyverse)
+library(magrittr)
+library(dplyr)
+library(ggpubr)
+```
+
+
+
+En este documento estudiaremos y representaremos las distancias de las representaciones en grafos de los diferentes metabolismos presentes en los animales observados. En particular, se estudiarán las distancias VH (Vertex-Histogram), SP(Shortest-Path) y PM(Pyramid Match), y las respresentaremos a partir de dos coordeadas principales. Posteriormente, compararemos la agrupación obtenida y la agrupación que se obtiene con el phylum.
+
+
+Empezaremos con la matriz de distancias obtenida con el método VH, mostramos las distancias entre los 15 primeros grafos:
+
+
+```{r}
+dist_vh = read.table("Dist_VH.txt")
+head(dist_vh[,1:15], n= 15)
+```
+
+Aplicamos el método de coordenadas principales con la función de R `cmdscale`, especificando $k = 2`. Las primeras 15 observaciones son:
+
+```{r}
+vh_mds = cmdscale(dist_vh, k = 2) %>% 
+  as_tibble()
+
+vh_mds %>% 
+  slice_head(n = 15)
+```
+
+
+
+
+
+
+```{r}
+colnames(vh_mds) = c("Dim.1", "Dim.2")
+
+
+ggscatter(vh_mds, x = "Dim.1", y = "Dim.2", size = 0.5)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
