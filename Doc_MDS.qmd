@@ -22,7 +22,9 @@ En este documento estudiaremos y representaremos las distancias de las represent
 
 ```{r grupos phylum}
 phylum <- read.table("Grupos_phylum.txt")
+
 ```
+
 
 
 Empezaremos con la matriz de distancias obtenida con el método VH, mostramos las distancias entre los 15 primeros grafos:
@@ -32,7 +34,7 @@ dist_vh = read.table("Dist_VH.txt")
 head(dist_vh[,1:15], n= 15)
 ```
 
-Aplicamos el método de coordenadas principales con la función de R `cmdscale`, especificando \$k = 2\`. Las primeras 15 observaciones son:
+Aplicamos el método de coordenadas principales con la función de R `cmdscale`, usando la matriz de distancias anterior y especificando \$k = 2\` (dos componentes principales). Las primeras 15 observaciones son:
 
 ```{r mds vh, warning = FALSE}
 vh_mds <- cmdscale(dist_vh, k = 2) %>% 
@@ -42,14 +44,96 @@ vh_mds %>%
   slice_head(n = 15)
 ```
 
+Mostramos el gráfico de la matriz de similitud generada por el método VH. Para colorear los puntos de acuerdo con el grupo de animales al que pertenecen segun su phylum, uniremoslos dos tibble `vh_mds` y `phylum`  mediante la función `bind_cols()`.
+
 ```{r grafico mds vh}
 colnames(vh_mds) <- c("Dim.1", "Dim.2")
 
-vh_mds_phylum <- bind_cols(vh_mds, phylum)
-vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2)
+vh_mds_phylum <- bind_cols(vh_mds, phylum) #une los dos tibble uno al lado del otro
+vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2) #para poder colorar los puntos
 
-ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 0.5, color = "V2",
+ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
           palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
           )
 
 ```
+Vemos que la mayoria de puntos son o azules o rojos, esto se debe a que tenemos muchos más individuos con estos niveles de phylum, veamos exactamente cuantos individuos hay para cada nivel:
+```{r}
+summary(vh_mds_phylum$V2)
+```
+(Yo diria que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más optima ya que tenemos puntos azules mucho mas cercanos a otros de otros colores que entre ellos mismos, en cambio los rojos si que parecen estar bien agrupados. Podriamos decir que es una buena agrupacion salvo por el nivel 106 azul??)
+
+
+
+
+
+
+Ahora repetiremos el proceso con las matrixes de distancias obtenidas con los dos métodos restantes:
+
+Matriz de distancias obtenida con el método SP, mostramos las distancias entre los 15 primeros grafos:
+
+```{r matriz distancias sp}
+dist_sp = read.table("Dist_SP.txt")
+head(dist_sp[,1:15], n= 15)
+```
+
+Volvemos a aplicar el método de coordenadas principales con la función de R `cmdscale`, ahora con la matriz de distancia anterior y especificando \$k = 2\` para las coordenadas principales. Las primeras 15 observaciones son:
+
+```{r mds sp, warning = FALSE}
+sp_mds <- cmdscale(dist_sp, k = 2) %>% 
+  as_tibble()
+
+sp_mds %>% 
+  slice_head(n = 15)
+```
+
+Y finalmente mostramos el gráfico de la matriz de similitud generada por el método SP diferenciando otra vez por el grupo de animales que pertenecen segun su philum con el mismo método anterior.
+```{r grafico mds sp}
+colnames(sp_mds) <- c("Dim.1", "Dim.2")
+
+sp_mds_phylum <- bind_cols(sp_mds, phylum) #une los dos tibles uno al lado del otro
+sp_mds_phylum$V2 <- as.ordered(sp_mds_phylum$V2)
+
+ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
+          palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
+          )
+
+```
+(...)
+
+
+
+
+
+Finalmente la matriz de distancias obtenida con el método PM, mostramos las distancias entre los 15 primeros grafos:
+
+```{r matriz distancias pm}
+dist_pm = read.table("Dist_PM.txt")
+head(dist_pm[,1:15], n= 15)
+```
+
+Aplicamos el método de coordenadas principales con la función de R `cmdscale`, especificando \$k = 2\`. Las primeras 15 observaciones son:
+
+```{r mds pm, warning = FALSE}
+pm_mds <- cmdscale(dist_pm, k = 2) %>% 
+  as_tibble()
+
+pm_mds %>% 
+  slice_head(n = 15)
+```
+
+Y su gráfico de la matriz de similitud: 
+```{r grafico mds pm}
+colnames(pm_mds) <- c("Dim.1", "Dim.2")
+
+pm_mds_phylum <- bind_cols(pm_mds, phylum) #une los dos tibles uno al lado del otro
+pm_mds_phylum$V2 <- as.ordered(pm_mds_phylum$V2)
+
+ggscatter(pm_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
+          palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
+          )
+
+```
+
+
+(...)
