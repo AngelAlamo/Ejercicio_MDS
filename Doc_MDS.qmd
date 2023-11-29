@@ -22,7 +22,6 @@ En este documento estudiaremos y representaremos las distancias de las represent
 
 ```{r grupos phylum}
 phylum <- read.table("Grupos_phylum.txt")
-
 ```
 
 
@@ -46,7 +45,11 @@ vh_mds %>%
 ```{r grafico mds vh}
 colnames(vh_mds) <- c("Dim.1", "Dim.2")
 
+vh_mds_phylum <- bind_cols(vh_mds, phylum)
+vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2)
 
-ggscatter(vh_mds, x = "Dim.1", y = "Dim.2", size = 0.5)
+ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 0.5, color = "V2",
+          palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
+          )
 
 ```
