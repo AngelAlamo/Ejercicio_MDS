@@ -27,12 +27,21 @@ phylum <- read.table("Grupos_phylum.txt")
 
 
 
-Empezaremos con la matriz de distancias obtenida con el método VH, mostramos las distancias entre los 15 primeros grafos:
+Empezaremos con la matriz de distancias obtenida con el método VH, mostramos la matriz de partida, la cual es una matriz de similaridades, entre los 15 primeros grafos:
 
 ```{r matriz distancias vh}
-dist_vh = read.table("Dist_VH.txt")
+mat_vh = read.table("Dist_VH.txt")
+head(mat_vh[,1:15], n= 15)
+```
+
+De acuerdo con la teoria, la matriz de distancias asociadas será la que obtendremos al hacer $\sqrt(2(1-q_{ij}))$ siendo $q_{ij}$ los elementos de la matriz de partida:
+
+```{r}
+dist_vh = sqrt(2*(1-mat_vh))
 head(dist_vh[,1:15], n= 15)
 ```
+
+
 
 Aplicamos el método de coordenadas principales con la función de R `cmdscale`, usando la matriz de distancias anterior y especificando \$k = 2\` (dos componentes principales). Las primeras 15 observaciones son:
 
@@ -53,27 +62,33 @@ vh_mds_phylum <- bind_cols(vh_mds, phylum) #une los dos tibble uno al lado del o
 vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2) #para poder colorar los puntos
 
 ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
-          palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
+          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4")
           )
 
 ```
-Vemos que la mayoria de puntos son o azules o rojos, esto se debe a que tenemos muchos más individuos con estos niveles de phylum, veamos exactamente cuantos individuos hay para cada nivel:
+Vemos que la mayoria de puntos son o azules o rosas, esto se debe a que tenemos muchos más individuos con estos niveles de phylum, veamos exactamente cuantos individuos hay para cada nivel:
 ```{r}
 summary(vh_mds_phylum$V2)
 ```
-(Yo diria que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más optima ya que tenemos puntos azules mucho mas cercanos a otros de otros colores que entre ellos mismos, en cambio los rojos si que parecen estar bien agrupados. Podriamos decir que es una buena agrupacion salvo por el nivel 106 azul??)
+
+
+Con el gráfico podriamos distinguir fácilmente 5 agrupaciones, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los peces cartilaginosos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101 que son los mamiferos) si que parecen estar bien agrupados. Podriamos decir que seria una buena agrupación salvo por los peces cartilaginosos?
+
+(lo que no me gusta de este es que parecen faltar individuos no? comparad los otros gráficos)
 
 
 
+Ahora repetiremos el proceso con las matrices de distancias obtenidas con los dos métodos restantes:
 
-
-
-Ahora repetiremos el proceso con las matrixes de distancias obtenidas con los dos métodos restantes:
-
-Matriz de distancias obtenida con el método SP, mostramos las distancias entre los 15 primeros grafos:
+Matriz de similaridades obtenida con el método SP, mostramos las relaciones entre los 15 primeros grafos:
 
 ```{r matriz distancias sp}
-dist_sp = read.table("Dist_SP.txt")
+mat_sp = read.table("Dist_SP.txt")
+head(mat_sp[,1:15], n= 15)
+```
+Calculamos la matriz de distancias:
+```{r}
+dist_sp = sqrt(2*(1-mat_sp))
 head(dist_sp[,1:15], n= 15)
 ```
 
@@ -95,22 +110,29 @@ sp_mds_phylum <- bind_cols(sp_mds, phylum) #une los dos tibles uno al lado del o
 sp_mds_phylum$V2 <- as.ordered(sp_mds_phylum$V2)
 
 ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
-          palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
+          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4")
           )
 
 ```
-(...)
+(Este parece que agrupa mejor por phylum, aun que parece más dificil diferenciar las agrupaciones en el grafico? yo diria que hay 3 o 4... no se que opinais)
 
 
 
 
 
-Finalmente la matriz de distancias obtenida con el método PM, mostramos las distancias entre los 15 primeros grafos:
+Finalmente la matriz de similaridades obtenida con el método PM, mostramos las relaciones entre los 15 primeros grafos:
 
 ```{r matriz distancias pm}
-dist_pm = read.table("Dist_PM.txt")
+mat_pm = read.table("Dist_PM.txt")
+head(mat_pm[,1:15], n= 15)
+```
+
+Calculamos la matriz de distancias:
+```{r}
+dist_pm = sqrt(2*(1-mat_pm))
 head(dist_pm[,1:15], n= 15)
 ```
+
 
 Aplicamos el método de coordenadas principales con la función de R `cmdscale`, especificando \$k = 2\`. Las primeras 15 observaciones son:
 
@@ -130,10 +152,10 @@ pm_mds_phylum <- bind_cols(pm_mds, phylum) #une los dos tibles uno al lado del o
 pm_mds_phylum$V2 <- as.ordered(pm_mds_phylum$V2)
 
 ggscatter(pm_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
-          palette = c("red4", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "deeppink")
+          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4")
           )
 
 ```
 
 
-(...)
+(Lo mismo un poco que el anterior, se diferencia mejor por phylum y se ven 2 grupos claros, alomejor podriamos agrupar en 3... como veais)
