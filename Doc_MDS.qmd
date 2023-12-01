@@ -68,10 +68,10 @@ summary(vh_mds_phylum$V2)
 ```
 
 
-Con el gráfico podriamos distinguir fácilmente 5 agrupaciones, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los artrópodos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101, que son los vertebrados) sí que parecen estar bien agrupados. Podriamos decir que seria una buena agrupación salvo por los peces cartilaginosos?
+Con el gráfico podriamos distinguir fácilmente 5 agrupaciones verticales, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los artrópodos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101, que son los vertebrados) sí que parecen estar bien agrupados. 
 
 ```{r comentarios}
-# La pregunta de arriba no sé si es un comentario o es algo que ponemos en el documento
+# Podriamos decir que seria una buena agrupación salvo por los artrópodos?
 
 
 #(lo que no me gusta de este es que parecen faltar individuos no? comparad los otros gráficos)
@@ -120,7 +120,8 @@ ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2", palet
 
 En este gráfico, si no nos fijamos en la separación por phylum, podemos observar 3 agrupaciones: una en el rectángulo $[-0.3,0]\times[-0.2,0.1]$; otra en el rectángulo $[-0.125,0.3]\times[0,0.4]$; y la última en $[0.25,0.5]\times[-0.2,0.1]$.
 
-volvemos a observar una tendencia de los vertebrados (rosas) hacia la izquierda y de los artrópodos (azules) hacia la izquierda. Hay algunos individuos que están separados del resto. Sin embargo, los
+Ahora, fijandonos en la coloración según el nivel phylum, la primera agrupación es de individuos vertebrados, y la tercera de individuos artropodos. Sin embargo, la segunda agrupación contiene todos los grupos phylum. También, volvemos a observar una tendencia de los vertebrados (rosas) hacia la izquierda y de los artrópodos (azules) hacia la izquierda.
+
 ```{r comentarios 2}
 #(Este parece que agrupa mejor por phylum, aun que parece más dificil diferenciar las agrupaciones en el grafico? yo diria que hay 3 o 4... no se que opinais)
 ```
@@ -163,9 +164,16 @@ pm_mds_phylum$V2 <- as.ordered(pm_mds_phylum$V2) # Para poder colorar los puntos
 ggscatter(pm_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
           palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Pyramid Match")
 ```
+En este gráfico, vemos dos agrupaciones claras: una en la parte negativa de la primera coordenada principal y otra en la parte positiva. Podemos observar que, como en el primer gráfico, volvemos a tener una separación clara de los individuos vertebrados. Sin embargo, en la agrupación de la derecha, tenemos al resto de individuos, aunque el grupo de artrópodos tiene una tendencia al alza respecto a la segunda coordenada.
+
 
 ```{r comentarios 3}
 # (Lo mismo un poco que el anterior, se diferencia mejor por phylum y se ven 2 grupos claros, alomejor podriamos agrupar en 3... como veais)
 ```
+
+```{r comentarios 4}
+# Faltaría poner una conclusión
+```
+
 
 Para ver el código del estudio, visite [este repositorio de GitHub.](https://github.com/AngelAlamo/Ejercicio_MDS)
