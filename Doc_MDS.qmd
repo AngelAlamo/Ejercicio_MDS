@@ -10,7 +10,7 @@ execute:
   echo: false
 ---
 
-```{r, warning = FALSE, message = FALSE}
+```{r librerias, warning = FALSE, message = FALSE}
 library(MVA)
 library(tidyverse)
 library(magrittr)
@@ -18,32 +18,28 @@ library(dplyr)
 library(ggpubr)
 ```
 
-En este documento estudiaremos y representaremos las distancias de las representaciones en grafos de los diferentes metabolismos presentes en los animales observados. En particular, se estudiarán las distancias VH (Vertex-Histogram), SP(Shortest-Path) y PM(Pyramid Match), y las respresentaremos a partir de dos coordenadas principales. Posteriormente, compararemos la agrupación obtenida y la agrupación que se obtiene con el phylum, coloreando los puntos según esta última agrupación.
+En este documento estudiaremos y representaremos las distancias de las representaciones en grafos de los diferentes metabolismos presentes en los animales observados. En particular, se estudiarán las distancias obtenidas de las similaridades VH (Vertex-Histogram), SP(Shortest-Path) y PM(Pyramid Match) y las respresentaremos a partir de dos coordenadas principales. Posteriormente, compararemos la agrupación obtenida y la agrupación que se obtiene con el phylum, coloreando los puntos según esta última agrupación.
 
 ```{r grupos phylum}
 phylum <- read.table("Grupos_phylum.txt")
 
 ```
 
-
-
 Empezaremos con la matriz de distancias obtenida con el método VH, mostramos la matriz de partida, la cual es una matriz de similaridades, entre los 15 primeros grafos:
 
-```{r matriz distancias vh}
+```{r matriz similaridades vh}
 mat_vh = read.table("Dist_VH.txt")
 head(mat_vh[,1:15], n= 15)
 ```
 
 De acuerdo con la teoria, la matriz de distancias asociadas será la que obtendremos al hacer $\sqrt(2(1-q_{ij}))$ siendo $q_{ij}$ los elementos de la matriz de partida:
 
-```{r}
+```{r matriz distancias vh}
 dist_vh = sqrt(2*(1-mat_vh))
 head(dist_vh[,1:15], n= 15)
 ```
 
-
-
-Aplicamos el método de coordenadas principales con la función de R `cmdscale`, usando la matriz de distancias anterior y especificando \$k = 2\` (dos componentes principales). Las primeras 15 observaciones son:
+Aplicamos el método de coordenadas principales con la función de R `cmdscale`, usando la matriz de distancias anterior y especificando $k = 2$ (dos componentes principales). Las primeras 15 observaciones son:
 
 ```{r mds vh, warning = FALSE}
 vh_mds <- cmdscale(dist_vh, k = 2) %>% 
@@ -53,46 +49,53 @@ vh_mds %>%
   slice_head(n = 15)
 ```
 
-Mostramos el gráfico de la matriz de similitud generada por el método VH. Para colorear los puntos de acuerdo con el grupo de animales al que pertenecen segun su phylum, uniremoslos dos tibble `vh_mds` y `phylum`  mediante la función `bind_cols()`.
+Mostramos el gráfico de la matriz de similitud generada por el método VH. Para colorear los puntos de acuerdo con el grupo de animales al que pertenecen segun su phylum, uniremos los dos tibble `vh_mds` y `phylum`  mediante la función `bind_cols()`.
 
-```{r grafico mds vh}
+```{r grafico mds vh, fig.height=4, fig.width=6}
 colnames(vh_mds) <- c("Dim.1", "Dim.2")
 
-vh_mds_phylum <- bind_cols(vh_mds, phylum) #une los dos tibble uno al lado del otro
-vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2) #para poder colorar los puntos
+vh_mds_phylum <- bind_cols(vh_mds, phylum)
 
-ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
-          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4")
-          )
+vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2) # Para poder colorar los puntos
 
+ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2", palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Vertex Histogram")
 ```
+
 Vemos que la mayoria de puntos son o azules o rosas, esto se debe a que tenemos muchos más individuos con estos niveles de phylum, veamos exactamente cuantos individuos hay para cada nivel:
-```{r}
+
+```{r numero de individuos por especie}
 summary(vh_mds_phylum$V2)
 ```
 
 
-Con el gráfico podriamos distinguir fácilmente 5 agrupaciones, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los peces cartilaginosos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101 que son los mamiferos) si que parecen estar bien agrupados. Podriamos decir que seria una buena agrupación salvo por los peces cartilaginosos?
+Con el gráfico podriamos distinguir fácilmente 5 agrupaciones, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los peces cartilaginosos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101, que son los mamiferos) sí que parecen estar bien agrupados. Podriamos decir que seria una buena agrupación salvo por los peces cartilaginosos?
 
-(lo que no me gusta de este es que parecen faltar individuos no? comparad los otros gráficos)
+```{r comentarios}
+# La pregunta de arriba no sé si es un comentario o es algo que ponemos en el documento
 
 
+#(lo que no me gusta de este es que parecen faltar individuos no? comparad los otros gráficos)
+# Respuesta: No faltan individuos, simplemente son el mismo punto. Fíjate en la matriz de distancias. Hay muchas que son iguales (Lo comentamos en el gráfico?)
+```
 
-Ahora repetiremos el proceso con las matrices de distancias obtenidas con los dos métodos restantes:
+
+Ahora repetiremos el proceso con las matrices de similaridades obtenidas con los dos métodos restantes:
 
 Matriz de similaridades obtenida con el método SP, mostramos las relaciones entre los 15 primeros grafos:
 
-```{r matriz distancias sp}
+```{r matriz similaridades sp}
 mat_sp = read.table("Dist_SP.txt")
 head(mat_sp[,1:15], n= 15)
 ```
+
 Calculamos la matriz de distancias:
-```{r}
+
+```{r matriz distancias sp}
 dist_sp = sqrt(2*(1-mat_sp))
 head(dist_sp[,1:15], n= 15)
 ```
 
-Volvemos a aplicar el método de coordenadas principales con la función de R `cmdscale`, ahora con la matriz de distancia anterior y especificando \$k = 2\` para las coordenadas principales. Las primeras 15 observaciones son:
+Volvemos a aplicar el método de coordenadas principales con la función de R `cmdscale`, ahora con la matriz de distancia anterior y especificando $k = 2$ para las coordenadas principales. Las primeras 15 observaciones son:
 
 ```{r mds sp, warning = FALSE}
 sp_mds <- cmdscale(dist_sp, k = 2) %>% 
@@ -102,39 +105,41 @@ sp_mds %>%
   slice_head(n = 15)
 ```
 
-Y finalmente mostramos el gráfico de la matriz de similitud generada por el método SP diferenciando otra vez por el grupo de animales que pertenecen segun su philum con el mismo método anterior.
-```{r grafico mds sp}
+Y finalmente mostramos el gráfico de la matriz de similaridad generada por el método SP diferenciando otra vez por el grupo de animales que pertenecen segun su phylum con el mismo método anterior.
+
+```{r grafico mds sp, fig.height=4, fig.width=6}
 colnames(sp_mds) <- c("Dim.1", "Dim.2")
 
-sp_mds_phylum <- bind_cols(sp_mds, phylum) #une los dos tibles uno al lado del otro
-sp_mds_phylum$V2 <- as.ordered(sp_mds_phylum$V2)
+sp_mds_phylum <- bind_cols(sp_mds, phylum)
 
-ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
-          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4")
-          )
+sp_mds_phylum$V2 <- as.ordered(sp_mds_phylum$V2) # Para poder colorar los puntos
+
+ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2", palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Shortest-Path")
 
 ```
-(Este parece que agrupa mejor por phylum, aun que parece más dificil diferenciar las agrupaciones en el grafico? yo diria que hay 3 o 4... no se que opinais)
 
 
-
+```{r comentarios 2}
+#(Este parece que agrupa mejor por phylum, aun que parece más dificil diferenciar las agrupaciones en el grafico? yo diria que hay 3 o 4... no se que opinais)
+```
 
 
 Finalmente la matriz de similaridades obtenida con el método PM, mostramos las relaciones entre los 15 primeros grafos:
 
-```{r matriz distancias pm}
+```{r matriz similaridades pm}
 mat_pm = read.table("Dist_PM.txt")
 head(mat_pm[,1:15], n= 15)
 ```
 
 Calculamos la matriz de distancias:
-```{r}
+
+```{r matriz distancias pm}
 dist_pm = sqrt(2*(1-mat_pm))
 head(dist_pm[,1:15], n= 15)
 ```
 
 
-Aplicamos el método de coordenadas principales con la función de R `cmdscale`, especificando \$k = 2\`. Las primeras 15 observaciones son:
+Aplicamos el método de coordenadas principales con la función de R `cmdscale`, especificando $k = 2$. Las primeras 15 observaciones son:
 
 ```{r mds pm, warning = FALSE}
 pm_mds <- cmdscale(dist_pm, k = 2) %>% 
@@ -145,17 +150,20 @@ pm_mds %>%
 ```
 
 Y su gráfico de la matriz de similitud: 
-```{r grafico mds pm}
+
+```{r grafico mds pm, fig.height=4, fig.width=6}
 colnames(pm_mds) <- c("Dim.1", "Dim.2")
 
-pm_mds_phylum <- bind_cols(pm_mds, phylum) #une los dos tibles uno al lado del otro
-pm_mds_phylum$V2 <- as.ordered(pm_mds_phylum$V2)
+pm_mds_phylum <- bind_cols(pm_mds, phylum)
+
+pm_mds_phylum$V2 <- as.ordered(pm_mds_phylum$V2) # Para poder colorar los puntos
 
 ggscatter(pm_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
-          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4")
-          )
-
+          palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Pyramid Match")
 ```
 
+```{r comentarios 3}
+# (Lo mismo un poco que el anterior, se diferencia mejor por phylum y se ven 2 grupos claros, alomejor podriamos agrupar en 3... como veais)
+```
 
-(Lo mismo un poco que el anterior, se diferencia mejor por phylum y se ven 2 grupos claros, alomejor podriamos agrupar en 3... como veais)
+Para ver el código del estudio, visite [este repositorio de GitHub.](https://github.com/AngelAlamo/Ejercicio_MDS)
