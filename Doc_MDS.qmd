@@ -68,7 +68,7 @@ summary(vh_mds_phylum$V2)
 ```
 
 
-Con el gráfico podriamos distinguir fácilmente 5 agrupaciones, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los peces cartilaginosos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101, que son los mamiferos) sí que parecen estar bien agrupados. Podriamos decir que seria una buena agrupación salvo por los peces cartilaginosos?
+Con el gráfico podriamos distinguir fácilmente 5 agrupaciones, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los artrópodos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101, que son los vertebrados) sí que parecen estar bien agrupados. Podriamos decir que seria una buena agrupación salvo por los peces cartilaginosos?
 
 ```{r comentarios}
 # La pregunta de arriba no sé si es un comentario o es algo que ponemos en el documento
@@ -118,7 +118,9 @@ ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2", palet
 
 ```
 
+En este gráfico, si no nos fijamos en la separación por phylum, podemos observar 3 agrupaciones: una en el rectángulo $[-0.3,0]\times[-0.2,0.1]$; otra en el rectángulo $[-0.125,0.3]\times[0,0.4]$; y la última en $[0.25,0.5]\times[-0.2,0.1]$.
 
+volvemos a observar una tendencia de los vertebrados (rosas) hacia la izquierda y de los artrópodos (azules) hacia la izquierda. Hay algunos individuos que están separados del resto. Sin embargo, los
 ```{r comentarios 2}
 #(Este parece que agrupa mejor por phylum, aun que parece más dificil diferenciar las agrupaciones en el grafico? yo diria que hay 3 o 4... no se que opinais)
 ```
@@ -149,7 +151,7 @@ pm_mds %>%
   slice_head(n = 15)
 ```
 
-Y su gráfico de la matriz de similitud: 
+Y su gráfico: 
 
 ```{r grafico mds pm, fig.height=4, fig.width=6}
 colnames(pm_mds) <- c("Dim.1", "Dim.2")
