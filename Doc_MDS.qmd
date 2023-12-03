@@ -22,7 +22,6 @@ En este documento estudiaremos y representaremos las distancias de las represent
 
 ```{r grupos phylum}
 phylum <- read.table("Grupos_phylum.txt")
-
 ```
 
 Empezaremos con la matriz de distancias obtenida con el método VH, mostramos la matriz de partida, la cual es una matriz de similaridades, entre los 15 primeros grafos:
@@ -30,9 +29,10 @@ Empezaremos con la matriz de distancias obtenida con el método VH, mostramos la
 ```{r matriz similaridades vh}
 mat_vh = read.table("Dist_VH.txt")
 head(mat_vh[,1:15], n= 15)
+
 ```
 
-De acuerdo con la teoria, la matriz de distancias asociadas será la que obtendremos al hacer $\sqrt(2(1-q_{ij}))$ siendo $q_{ij}$ los elementos de la matriz de partida:
+De acuerdo con la teoria, la matriz de distancias asociadas será la que obtendremos al hacer $\sqrt{2(1-q_{ij})}$ siendo $q_{ij}$ los elementos de la matriz de partida:
 
 ```{r matriz distancias vh}
 dist_vh = sqrt(2*(1-mat_vh))
@@ -56,39 +56,44 @@ colnames(vh_mds) <- c("Dim.1", "Dim.2")
 
 vh_mds_phylum <- bind_cols(vh_mds, phylum)
 
-vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2) # Para poder colorar los puntos
+vh_mds_phylum$V2 <- as.ordered(vh_mds_phylum$V2) # Para poder colorear los puntos
 
 ggscatter(vh_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2", palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Vertex Histogram")
 ```
 
-Vemos que la mayoria de puntos son o azules o rosas, esto se debe a que tenemos muchos más individuos con estos niveles de phylum, veamos exactamente cuantos individuos hay para cada nivel:
+Vemos que la mayoria de puntos son o azules o rosas, que corresponden a los grupos 101 y 106 respectivamente, esto se debe a que tenemos muchos más individuos con estos niveles de phylum, veamos exactamente cuantos individuos hay para cada nivel:
 
 ```{r numero de individuos por especie}
 summary(vh_mds_phylum$V2)
 ```
 
+A simple vista parece que tenemos 5 grupos, que corresponden a las bandas verticales y considerando aquel "punto" agrupado con la banda vertical que tiene coordenada aproximadamente $-0.1$ en la primera dimensión. No obstante, debido a la simplicidad de la matriz de similaridades VH, los puntos se superponen y eso provoca que no se obtenga realmente la información correcta, ya que si vemos cuántas observaciones hay en ese "punto", tenemos 7 observaciones:
 
-Con el gráfico podriamos distinguir fácilmente 5 agrupaciones verticales, en cambio parece que las agrupaciones que observamos por el nivel de phylum gracias a la distinción de colores no es la más óptima ya que vemos que hay puntos azules (los que representan los individuos caracterizados por el phylum 106, los cuales son los artrópodos) esparcidos un poco por todo, algunos mucho más cercanos a otros puntos de diferente color que entre ellos mismos. En cambio el otro conjunto de individuos más representado, los puntos rosas (los que representan los de phylum 101, que son los vertebrados) sí que parecen estar bien agrupados. 
+```{r "punto"}
+vh_punto1 = vh_mds[between(vh_mds$Dim.1, -0.6, 0) & between(vh_mds$Dim.2, 0, 0.05),]
 
-```{r comentarios}
-# Podriamos decir que seria una buena agrupación salvo por los artrópodos?
+vh_punto1 %>% 
+  arrange(Dim.1) %>% 
+  slice_tail(n = 7)
 
-
-#(lo que no me gusta de este es que parecen faltar individuos no? comparad los otros gráficos)
-# Respuesta: No faltan individuos, simplemente son el mismo punto. Fíjate en la matriz de distancias. Hay muchas que son iguales (Lo comentamos en el gráfico?)
 ```
+
+Entonces ese "punto" efectivamente, es un grupo distinguido. En cambio, si estudiamos ese punto distinguido con valor en la segunda coordenada aproximadamente de $-0.05$, tenemos que solo hay una observación y por lo tanto parece que pertenece al grupo formado por la banda vertical que se encuentra encima de ese punto.
+
+Por lo tanto, podemos diferenciar 6 grupos distintos, que corresponden a las bandas verticales y al "punto" que hemos comentado. A partir del phylum, vemos que realmente los grupos que hay son 14, entonces a partir de estas similaridades no estamos obteniendo correctamente la agrupación adecuada. Además, si nos fijamos en el grupo 106, correspondiente al grupo de los artrópodos, vemos que pertenecen en hasta 4 grupos diferentes, con esto podemos deducir que en efecto, estamos perdiendo información con la matriz de similaridades VH. Por otro lado, el grupo 101, correspondiente al grupo de los vertebrados están separados en dos grupos. En conclusión, no obtenemos una buena agrupación.
+
 
 
 Ahora repetiremos el proceso con las matrices de similaridades obtenidas con los dos métodos restantes:
 
-Matriz de similaridades obtenida con el método SP, mostramos las relaciones entre los 15 primeros grafos:
+Matriz de similaridades obtenida con el método SP: mostramos las relaciones entre los 15 primeros grafos:
 
 ```{r matriz similaridades sp}
 mat_sp = read.table("Dist_SP.txt")
 head(mat_sp[,1:15], n= 15)
 ```
 
-Calculamos la matriz de distancias:
+A diferencia de la matriz de similaridades VH, parece que aquí hay una mejor distinción, veamos si es cierto, calculamos la matriz de distancias:
 
 ```{r matriz distancias sp}
 dist_sp = sqrt(2*(1-mat_sp))
@@ -105,26 +110,28 @@ sp_mds %>%
   slice_head(n = 15)
 ```
 
-Y finalmente mostramos el gráfico de la matriz de similaridad generada por el método SP diferenciando otra vez por el grupo de animales que pertenecen segun su phylum con el mismo método anterior.
+Y finalmente mostramos el gráfico de la matriz de similaridad generada por el método SP diferenciando otra vez por el grupo de animales que pertenecen según su phylum con el mismo método anterior.
 
 ```{r grafico mds sp, fig.height=4, fig.width=6}
 colnames(sp_mds) <- c("Dim.1", "Dim.2")
 
 sp_mds_phylum <- bind_cols(sp_mds, phylum)
 
-sp_mds_phylum$V2 <- as.ordered(sp_mds_phylum$V2) # Para poder colorar los puntos
+sp_mds_phylum$V2 <- as.ordered(sp_mds_phylum$V2) # Para poder colorear los puntos
 
 ggscatter(sp_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2", palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Shortest-Path")
 
 ```
 
-En este gráfico, si no nos fijamos en la separación por phylum, podemos observar 3 agrupaciones: una en el rectángulo $[-0.3,0]\times[-0.2,0.1]$; otra en el rectángulo $[-0.125,0.3]\times[0,0.4]$; y la última en $[0.25,0.5]\times[-0.2,0.1]$.
+En este gráfico, si no nos fijamos en la separación por phylum, podemos observar 3 agrupaciones, que aproximadamente son: una en el rectángulo $[-0.3,0]\times[-0.2,0.1]$; otra en el rectángulo $[-0.125,0.3]\times[0,0.4]$; y la última en $[0.25,0.5]\times[-0.2,0.1]$. Esta agrupación muestra más dispersión que en el anterior, esto hace que no se vean claramente los grupos, ya que, por ejemplo, el rectángulo aproximadamente $[-0.1,0.1] \times [0.2, 0.4]$ parece ser otro grupo, pero no se puede deducir directamente, por eso, haremos las dos interpretaciones:
 
-Ahora, fijandonos en la coloración según el nivel phylum, la primera agrupación es de individuos vertebrados, y la tercera de individuos artropodos. Sin embargo, la segunda agrupación contiene todos los grupos phylum. También, volvemos a observar una tendencia de los vertebrados (rosas) hacia la izquierda y de los artrópodos (azules) hacia la izquierda.
+Considerando 3 grupos: en este caso, tenemos que a partir de esta matriz de similaridades, se ha podido diferenciar prácticamente el grupo 101. En cambio, el grupo 106 muestra una gran dispersión, comprendiendo valores en el intervalo $[-0.05, 0.5]$ en la primera dimensión, haciendo que algunos pertenezcan al segundo grupo, y otros en el tercer grupo. Finalmente, los otros grupos están juntos en el grupo 2, esto puede ser por la falta de observaciones, ya que estas observaciones pueden ser valores atípicos y por lo tanto hacen parecer que pertenecen a un grupo que quizás con otra muestra no parecería cierto.
 
-```{r comentarios 2}
-#(Este parece que agrupa mejor por phylum, aun que parece más dificil diferenciar las agrupaciones en el grafico? yo diria que hay 3 o 4... no se que opinais)
-```
+Considerando 4 grupos: con esta agrupación tenemos las mismas conclusiones sobre los grupos 101 y 106, la única diferencia es que los demás grupos están comprendidos en el nuevo grupo, excepto algunos como el grupo 107, 108, 111 y 113.
+
+Por último, se vuelve a observar una tendencia de los vertebrados (rosas) hacia la izquierda y de los artrópodos (azules) hacia la derecha.
+
+
 
 
 Finalmente la matriz de similaridades obtenida con el método PM, mostramos las relaciones entre los 15 primeros grafos:
@@ -164,16 +171,99 @@ pm_mds_phylum$V2 <- as.ordered(pm_mds_phylum$V2) # Para poder colorar los puntos
 ggscatter(pm_mds_phylum, x = "Dim.1", y = "Dim.2", size = 1, color = "V2",
           palette = c("deeppink", "orange", "yellow", "green", "cyan", "blue", "purple", "violetred", "tan4", "orangered", "olivedrab", "black", "cornsilk3", "red4"), title = "MDS Pyramid Match")
 ```
-En este gráfico, vemos dos agrupaciones claras: una en la parte negativa de la primera coordenada principal y otra en la parte positiva. Podemos observar que, como en el primer gráfico, volvemos a tener una separación clara de los individuos vertebrados. Sin embargo, en la agrupación de la derecha, tenemos al resto de individuos, aunque el grupo de artrópodos tiene una tendencia al alza respecto a la segunda coordenada.
+
+Igual que con la matriz de similaridades anterior, las agrupaciones no quedan bien diferenciadas, ya que o bien tenemos los 2 grupos según si la primera coordenada es negativa o positiva, o bien los 3 grupos que aproximadamente son: aquellos con primera coordenada negativa; aquellos con primera coordenada positiva y con segunda coordenada en $[-0.3, -0.1]$; aquellos con primera coordenada positiva y con segunda coordenada en $[-0.1, 0.2]$. Estudiamos los dos casos:
+
+Considerando 2 grupos: podemos ver que el grupo con phylum 101 finalmente ha sido perfectamente agrupado y distinguido. Por otro lado las observaciones que prtenecen al grupo con phylum 106 están en el mismo grupo, no obstante, también contienen otros grupos según el phylum. Por último, los demás grupos, con observaciones demasiado bajas, se agrupan en el grupo 2.
+
+Considerando 3 grupos: las diferencias respecto al caso anterior es que ahora también el grupo 106 está separado y agrupado correctamente, salvo una cierta diespersión. Además, los otros grupos que tienen pocas observaciones pertenecen al mismo grupo, pero sin poder sacar más conclusiones.
 
 
-```{r comentarios 3}
-# (Lo mismo un poco que el anterior, se diferencia mejor por phylum y se ven 2 grupos claros, alomejor podriamos agrupar en 3... como veais)
+
+En conclusión, respecto a la totalidad del trabajo, en general parece que considerando dos coordenadas principales, estamos perdiendo demasiada información para obtener los resultados correctos según el phylum, sin embargo, si calculamos los coeficientes de precisión a partir de los valores propios de las matrices de similaridad:
+
+VH:
+
+
+```{r VH precision m_12}
+
+valores_vh = eigen(mat_vh)$values
+
+m_12_vh = ( sum(abs(valores_vh[1:2])) / sum(abs(valores_vh)) ) *100
+
 ```
 
-```{r comentarios 4}
-# Faltaría poner una conclusión
+
+-$m_{1,2}(VH) = 99.40705$
+
+
+```{r VH precision m_22}
+
+m_22_vh = ( sum(valores_vh[1:2]^2)/ sum(valores_vh^2) )*100
+
 ```
+
+
+-$m_{2,2}(VH) = 99.99946$
+
+
+
+
+SP:
+
+
+```{r SP precision m_12}
+
+valores_sp = eigen(mat_sp)$values
+
+m_12_sp = ( sum(abs(valores_sp[1:2])) / sum(abs(valores_sp)) ) *100
+
+```
+
+
+-$m_{1,2}(SP) = 92.26544$
+
+
+```{r SP precision m_22}
+
+m_22_sp = ( sum(valores_sp[1:2]^2)/ sum(valores_sp^2) )*100
+
+```
+
+
+-$m_{2,2}(SP) = 99.95318$
+
+
+
+
+PM:
+
+
+```{r PM precision m_12}
+
+valores_pm = eigen(mat_pm)$values
+
+m_12_pm = ( sum(abs(valores_pm[1:2])) / sum(abs(valores_pm)) ) *100
+
+```
+
+
+-$m_{1,2}(PM) = 95.82826$
+
+
+```{r PM precision m_22}
+
+m_22_pm = ( sum(valores_pm[1:2]^2)/ sum(valores_pm^2) )*100
+
+```
+
+
+-$m_{2,2}(PM) = 99.99144$
+
+
+
+Tenemos que la precisión es muy alta, y, si comparamos, tenemos que con VH obtenemos una mejor representación (según este criterio), después con PM y finalmente con SP. A partir de lo observado, parece ser que la variabilidad si que se ha preservaddo, pero al considerar solo 2 dimensiones, vemos los datos desde un punto de vista equivocado, es decir, que las proyecciones 2-dimensionales no son adecuadas aun teniendo una buena precisión según el criterio.
+
 
 
 Para ver el código del estudio, visite [este repositorio de GitHub.](https://github.com/AngelAlamo/Ejercicio_MDS)
